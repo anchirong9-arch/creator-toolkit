@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const CT = window.CT = window.CT || {};
-  CT.VERSION = '1.0.4';
+  CT.VERSION = '1.0.5';
 
   /* ---------- tiny helpers ---------- */
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -131,10 +131,17 @@
     const dosDate = (((now.getFullYear() - 1980) << 9) | ((now.getMonth() + 1) << 5) | now.getDate()) & 0xFFFF;
     const local = [], central = [];
     let offset = 0;
+    const used = Object.create(null);
 
     for (const e of entries) {
+      let name = e.name, n = 2;
+      while (used[name]) {
+        name = e.name.replace(/(\.[^.]+)?$/, '-' + n + '$1');
+        n++;
+      }
+      used[name] = 1;
       const data = new Uint8Array(await e.blob.arrayBuffer());
-      const nb = enc.encode(e.name);
+      const nb = enc.encode(name);
       const crc = crc32(data);
 
       const lh = new Uint8Array(30 + nb.length);
@@ -332,7 +339,7 @@
         '</a>'
       ).join('') +
       '</section>' +
-      '<p class="home-foot">모든 처리는 이 브라우저(내 폰) 안에서만 이루어집니다.<br>사진·PDF는 어디에도 업로드되지 않아요.<br><span style="opacity:.6">v' + CT.VERSION + '</span></p>';
+      '<p class="home-foot">모든 처리는 이 브라우저(내 폰) 안에서만 이루어집니다.<br>사진·PDF는 어디에도 업로드되지 않아요.<br>아이폰은 공유 → ‘홈 화면에 추가’, 안드로이드는 메뉴 → ‘앱 설치’<br><span style="opacity:.6">v' + CT.VERSION + '</span></p>';
   }
 
   function render() {

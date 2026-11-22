@@ -28,20 +28,23 @@
   function drawQR(canvas, qr, size, margin, fg, bg) {
     const count = qr.getModuleCount();
     const total = count + margin * 2;
-    const cell = Math.max(1, Math.floor(size / total));
+    const cell = Math.max(1, Math.ceil(size / total));
     const dim = cell * total;
-    canvas.width = dim;
-    canvas.height = dim;
+    const off = (size - dim) / 2; // 음수: 정확한 크기에 맞추려고 여백 쪽을 살짝 잘라냄
+    canvas.width = size;
+    canvas.height = size;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, dim, dim);
+    ctx.fillRect(0, 0, size, size);
     ctx.fillStyle = fg;
     for (let r = 0; r < count; r++) {
       for (let c = 0; c < count; c++) {
-        if (qr.isDark(r, c)) ctx.fillRect((c + margin) * cell, (r + margin) * cell, cell, cell);
+        if (qr.isDark(r, c)) {
+          ctx.fillRect(Math.round(off + (c + margin) * cell), Math.round(off + (r + margin) * cell), cell, cell);
+        }
       }
     }
-    return dim;
+    return size;
   }
 
   CT.register({
@@ -183,7 +186,7 @@
         try {
           const qr = buildQR(text, ec);
           lastQR = { qr, text };
-          const dim = drawQR(prev, qr, 520, margin, fg, bg);
+          drawQR(prev, qr, 520, margin, fg, bg);
           prev.style.width = '100%';
           prev.style.height = 'auto';
           meta.textContent = qr.getModuleCount() + '×' + qr.getModuleCount() + ' 모듈 · ' + text.length + '자';
