@@ -99,7 +99,7 @@
         const W = cv.width, H = cv.height;
         layerKey = W + 'x' + H;
         mosaicLayer = CT.canvas(W, H);
-        const block = Math.max(3, Math.min(W, H) / 110);
+        const block = Math.max(3, Math.min(W, H) / 60);
         const small = CT.canvas(Math.max(2, Math.round(W / block)), Math.max(2, Math.round(H / block)));
         const sctx = small.getContext('2d');
         sctx.imageSmoothingEnabled = true;
@@ -240,7 +240,7 @@
 
           // full-resolution layers
           const fullMosaic = CT.canvas(img.w, img.h);
-          const fblock = Math.max(3, Math.min(img.w, img.h) / 110);
+          const fblock = Math.max(3, Math.min(img.w, img.h) / 60);
           const small = CT.canvas(Math.max(2, Math.round(img.w / fblock)), Math.max(2, Math.round(img.h / fblock)));
           const sctx = small.getContext('2d');
           sctx.drawImage(img.src, 0, 0, small.width, small.height);

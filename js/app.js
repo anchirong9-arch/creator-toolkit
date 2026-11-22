@@ -2,7 +2,7 @@
 (function () {
   'use strict';
   const CT = window.CT = window.CT || {};
-  CT.VERSION = '1.0.3';
+  CT.VERSION = '1.0.4';
 
   /* ---------- tiny helpers ---------- */
   const $ = (sel, root) => (root || document).querySelector(sel);
