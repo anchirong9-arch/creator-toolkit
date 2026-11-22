@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   const CT = window.CT = window.CT || {};
+  CT.VERSION = '1.0.3';
 
   /* ---------- tiny helpers ---------- */
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -331,7 +332,7 @@
         '</a>'
       ).join('') +
       '</section>' +
-      '<p class="home-foot">모든 처리는 이 브라우저(내 폰) 안에서만 이루어집니다.<br>사진·PDF는 어디에도 업로드되지 않아요.</p>';
+      '<p class="home-foot">모든 처리는 이 브라우저(내 폰) 안에서만 이루어집니다.<br>사진·PDF는 어디에도 업로드되지 않아요.<br><span style="opacity:.6">v' + CT.VERSION + '</span></p>';
   }
 
   function render() {
