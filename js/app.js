@@ -181,7 +181,7 @@
 
   CT.ui = {};
 
-  /* dropzone */
+  /* dropzone — 파일 입력이 영역 전체를 덮어 실제 탭/드롭을 그대로 받습니다 */
   CT.ui.drop = function (opts) {
     const o = opts || {};
     const wrap = document.createElement('div');
@@ -193,30 +193,19 @@
 
     const input = document.createElement('input');
     input.type = 'file';
+    input.className = 'drop-input';
+    input.setAttribute('aria-label', o.label || '파일 선택');
     input.accept = o.accept || 'image/*';
     input.multiple = o.multiple !== false;
-    input.hidden = true;
     wrap.appendChild(input);
 
-    wrap.addEventListener('click', (e) => {
-      if (e.target === input) return;
-      input.click();
-    });
     input.addEventListener('change', () => {
       const files = Array.from(input.files || []);
       input.value = '';
       if (files.length && o.onFiles) o.onFiles(files);
     });
-    ['dragenter', 'dragover'].forEach((t) => wrap.addEventListener(t, (e) => {
-      e.preventDefault(); wrap.classList.add('over');
-    }));
-    ['dragleave', 'drop'].forEach((t) => wrap.addEventListener(t, (e) => {
-      e.preventDefault(); wrap.classList.remove('over');
-    }));
-    wrap.addEventListener('drop', (e) => {
-      const files = Array.from((e.dataTransfer && e.dataTransfer.files) || []);
-      if (files.length && o.onFiles) o.onFiles(files);
-    });
+    ['dragenter', 'dragover'].forEach((t) => wrap.addEventListener(t, () => wrap.classList.add('over')));
+    ['dragleave', 'drop', 'dragend'].forEach((t) => wrap.addEventListener(t, () => wrap.classList.remove('over')));
     return wrap;
   };
 
@@ -376,6 +365,14 @@
     buildNav();
     window.addEventListener('hashchange', render);
     render();
+
+    // 페이지 다른 곳에 파일을 떨어뜨렸을 때 브라우저가 그 파일로 이동하는 것을 막습니다.
+    document.addEventListener('dragover', (e) => {
+      if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault();
+    });
+    document.addEventListener('drop', (e) => {
+      if (!e.target.closest || !e.target.closest('.drop')) e.preventDefault();
+    });
     // PWA
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
