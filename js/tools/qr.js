@@ -172,13 +172,13 @@
         const text = payload();
         const meta = CT.$('#meta', root);
         if (!text) {
-          const c = CT.canvas(240, 240);
-          const cx = c.getContext('2d');
-          cx.fillStyle = '#fff'; cx.fillRect(0, 0, 240, 240);
-          cx.fillStyle = '#aab4c6'; cx.font = '13px sans-serif'; cx.textAlign = 'center';
-          cx.fillText('내용을 입력하면', 120, 112); cx.fillText('QR이 바로 생성됩니다', 120, 132);
-          prev.src = c.toDataURL();
-          prev.style.width = '240px'; prev.style.height = '240px';
+          prev.width = 300; prev.height = 300;
+          const cx = prev.getContext('2d');
+          cx.fillStyle = bg; cx.fillRect(0, 0, 300, 300);
+          cx.fillStyle = '#9aa7bd'; cx.font = '14px -apple-system, system-ui, sans-serif'; cx.textAlign = 'center';
+          cx.fillText('내용을 입력하면', 150, 142);
+          cx.fillText('QR이 바로 생성됩니다', 150, 166);
+          prev.style.width = '100%'; prev.style.height = 'auto';
           meta.textContent = '';
           lastQR = null;
           return;
