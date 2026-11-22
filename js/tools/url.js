@@ -23,7 +23,7 @@
     },
     {
       test: /(^|\.)(coupang\.com|tw.coupang\.com)$/i,
-      drop: ['src', 'spec', 'q', 'searchid', 'rank', 'isaddedcart', 'clickevent', 'ctag', 'sourcetype', 'searchkeyword', 'af', 'pm', 'mc_cid', 'trk', 'trackingcode', 'sharesource', 'sharechannel', 'sharetarget']
+      drop: ['src', 'spec', 'q', 'addtag', 'searchid', 'rank', 'isaddedcart', 'clickevent', 'ctag', 'sourcetype', 'searchkeyword', 'af', 'pm', 'mc_cid', 'trk', 'trackingcode', 'sharesource', 'sharechannel', 'sharetarget']
     },
     {
       test: /(^|\.)(naver\.com|naver\.me)$/i,
@@ -43,7 +43,7 @@
     },
     {
       test: /(^|\.)(smartstore\.naver\.com|brand\.naver\.com)$/i,
-      drop: ['naverle', 'nso', 'frm', 'where', 'from', 'sm']
+      drop: ['naverle', 'nso', 'frm', 'where', 'from', 'sm', 'n_media', 'n_query', 'n_rank', 'n_ad_group', 'n_ad', 'n_mall_pid', 'n_keyword', 'n_match']
     }
   ];
 

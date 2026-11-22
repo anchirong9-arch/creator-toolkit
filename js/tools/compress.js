@@ -120,7 +120,7 @@
             const k = maxW ? Math.min(1, maxW / Math.max(img.w, img.h)) : 1;
             const c = CT.canvas(img.w * k, img.h * k);
             const cx = c.getContext('2d');
-            if (targetType !== 'image/png') { cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); }
+            if (targetType === 'image/jpeg') { cx.fillStyle = '#fff'; cx.fillRect(0, 0, c.width, c.height); }
             cx.imageSmoothingQuality = 'high';
             cx.drawImage(img.src, 0, 0, c.width, c.height);
             if (img.close) img.close();

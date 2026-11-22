@@ -99,7 +99,8 @@
         const W = cv.width, H = cv.height;
         layerKey = W + 'x' + H;
         mosaicLayer = CT.canvas(W, H);
-        const small = CT.canvas(Math.max(8, Math.round(W / 26)), Math.max(8, Math.round(H / 26)));
+        const block = Math.max(3, Math.min(W, H) / 110);
+        const small = CT.canvas(Math.max(2, Math.round(W / block)), Math.max(2, Math.round(H / block)));
         const sctx = small.getContext('2d');
         sctx.imageSmoothingEnabled = true;
         sctx.imageSmoothingQuality = 'high';
@@ -110,7 +111,7 @@
 
         blurLayer = CT.canvas(W, H);
         const bctx = blurLayer.getContext('2d');
-        const radius = Math.max(6, Math.round(Math.min(W, H) * 0.014));
+        const radius = Math.max(4, Math.min(W, H) * 0.014);
         if ('filter' in bctx) {
           bctx.filter = 'blur(' + radius + 'px)';
           bctx.drawImage(img.src, 0, 0, W, H);
@@ -234,10 +235,13 @@
           const out = CT.canvas(img.w, img.h);
           const octx = out.getContext('2d');
           if (curMode === 'jpg') { octx.fillStyle = '#fff'; octx.fillRect(0, 0, out.width, out.height); }
+          octx.imageSmoothingQuality = 'high';
+          octx.drawImage(img.src, 0, 0, img.w, img.h);
 
           // full-resolution layers
           const fullMosaic = CT.canvas(img.w, img.h);
-          const small = CT.canvas(Math.max(8, Math.round(img.w / 120)), Math.max(8, Math.round(img.h / 120)));
+          const fblock = Math.max(3, Math.min(img.w, img.h) / 110);
+          const small = CT.canvas(Math.max(2, Math.round(img.w / fblock)), Math.max(2, Math.round(img.h / fblock)));
           const sctx = small.getContext('2d');
           sctx.drawImage(img.src, 0, 0, small.width, small.height);
           const fmc = fullMosaic.getContext('2d');
@@ -247,7 +251,7 @@
           const fullBlur = CT.canvas(img.w, img.h);
           const fbc = fullBlur.getContext('2d');
           if ('filter' in fbc) {
-            fbc.filter = 'blur(' + Math.max(4, Math.round(Math.min(img.w, img.h) * 0.006)) + 'px)';
+            fbc.filter = 'blur(' + Math.max(4, Math.min(img.w, img.h) * 0.014) + 'px)';
             fbc.drawImage(img.src, 0, 0, img.w, img.h);
             fbc.filter = 'none';
           } else {
