@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>크리에이터 툴킷 — 7가지 유틸리티</title>
+<meta name="description" content="사진 올리기 전에 쓰는 7가지 도구. EXIF 제거·모자이크, URL 추적 제거, PDF↔이미지, 이미지 압축, QR 생성, 비율 리사이즈, 일괄 워터마크. 모든 처리는 내 폰 안에서만.">
+<meta name="theme-color" content="#0b0e14">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="툴킷">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="#/home" aria-label="홈">
+    <img class="brand-mark" src="icons/icon-192.png" alt="">
+    <span class="brand-text"><b>크리에이터 툴킷</b><i id="toolTitle">7가지 유틸리티</i></span>
+  </a>
+  <div class="top-actions">
+    <button class="icon-btn" id="installBtn" hidden>앱 설치</button>
+    <a class="icon-btn" id="homeBtn" href="#/home" aria-label="홈">홈</a>
+  </div>
+</header>
+
+<main id="view" class="view"></main>
+
+<nav class="tabbar" id="tabbar" aria-label="도구 선택"></nav>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="lib/pdf.min.js"></script>
+<script src="lib/jspdf.umd.min.js"></script>
+<script src="lib/qrcode.js"></script>
+<script src="js/app.js"></script>
+<script src="js/tools/exif.js"></script>
+<script src="js/tools/url.js"></script>
+<script src="js/tools/pdf-image.js"></script>
+<script src="js/tools/compress.js"></script>
+<script src="js/tools/qr.js"></script>
+<script src="js/tools/resize.js"></script>
+<script src="js/tools/watermark.js"></script>
+<script src="js/boot.js"></script>
+</body>
+</html>
