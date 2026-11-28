@@ -319,7 +319,7 @@
     const bar = $('#tabbar');
     const items = [{ id: 'home', name: '홈', icon: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7"/><path d="M6 10v9h12v-9"/></svg>' }].concat(CT.tools);
     bar.innerHTML = items.map((t) =>
-      '<a class="tab" data-id="' + esc(t.id) + '" href="#/' + esc(t.id) + '">' + t.icon + '<span>' + esc(t.short || t.name) + '</span></a>'
+      '<a class="tab" data-id="' + esc(t.id) + '" href="' + (t.href ? esc(t.href) : '#/' + esc(t.id)) + '">' + t.icon + '<span>' + esc(t.short || t.name) + '</span></a>'
     ).join('');
   }
 
@@ -327,13 +327,13 @@
     const v = VIEW();
     v.innerHTML =
       '<section class="home-hero">' +
-      '<h1>폰 안에서 끝내는<br><span>7가지 크리에이터 도구</span></h1>' +
+      '<h1>폰 안에서 끝내는<br><span>8가지 크리에이터 도구</span></h1>' +
       '<p>사진·PDF·링크를 올리면 브라우저 안에서만 처리해요. 서버로 보내지 않아서 유출 걱정이 없고, 홈 화면에 추가하면 앱처럼 열립니다.</p>' +
       '<div class="hero-badges"><span class="pill">서버 전송 0</span><span class="pill">설치 없이 사용</span><span class="pill">오프라인 OK</span><span class="pill">무료</span></div>' +
       '</section>' +
       '<section class="home-grid">' +
       CT.tools.map((t, i) =>
-        '<a class="tool-link" href="#/' + esc(t.id) + '">' +
+        '<a class="tool-link" href="' + (t.href ? esc(t.href) : '#/' + esc(t.id)) + '">' +
         '<span class="tool-ico">' + t.icon + '</span>' +
         '<span class="tool-meta"><b>' + esc(t.name) + '</b><span>' + esc(t.desc) + '</span></span>' +
         '</a>'
@@ -344,10 +344,11 @@
 
   function render() {
     const id = (location.hash.replace(/^#\/?/, '') || 'home');
-    const tool = CT.tools.filter((t) => t.id === id)[0];
+    let tool = CT.tools.filter((t) => t.id === id)[0];
+    if (tool && tool.href) { location.replace(tool.href); return; }
     const v = VIEW();
     document.body.classList.toggle('not-home', !!tool);
-    TITLE().textContent = tool ? tool.name : '7가지 유틸리티';
+    TITLE().textContent = tool ? tool.name : '8가지 유틸리티';
     $$('#tabbar .tab').forEach((a) => a.classList.toggle('on', a.dataset.id === (tool ? tool.id : 'home')));
     const active = $('#tabbar .tab.on');
     if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest', inline: 'center' });

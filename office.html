@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>오피스 에디터 — 엑셀 · PPT 브라우저에서 바로 | 크리에이터 툴킷</title>
+<meta name="description" content="오피스 설치 없이 브라우저에서 엑셀(xlsx·xlsb·xls·csv)과 파워포인트(pptx)를 열어 편집·이미지 압축·저장. 파일은 서버로 전송되지 않습니다.">
+<meta name="theme-color" content="#0b0e14">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="icons/icon-192.png" sizes="192x192">
+<link rel="apple-touch-icon" href="icons/icon-180.png">
+<link rel="stylesheet" href="css/office.css?v=1.0.0">
+<script>
+  window.__OE_ERRORS__ = [];
+  window.addEventListener('error', function (e) {
+    window.__OE_ERRORS__.push((e.message || 'error') + ' @' + (e.filename || '').split('/').pop() + ':' + (e.lineno || 0));
+  });
+  window.addEventListener('unhandledrejection', function (e) {
+    window.__OE_ERRORS__.push('promise: ' + (e.reason && e.reason.message ? e.reason.message : String(e.reason)));
+  });
+</script>
+</head>
+<body data-mode="empty">
+
+<header class="topbar">
+  <a class="brand" href="index.html#/home" title="크리에이터 툴킷으로 돌아가기">
+    <img class="brand-mark" src="icons/icon-192.png" alt="" width="30" height="30">
+    <span class="brand-text"><b>오피스 에디터</b><i>엑셀 · PPT를 브라우저에서</i></span>
+  </a>
+
+  <div class="doc-chip" id="docChip" hidden>
+    <span class="chip-mode" id="chipMode">엑셀</span>
+    <span class="chip-name" id="chipName">문서.xlsx</span>
+    <span class="chip-size" id="chipSize"></span>
+    <span class="chip-dot" id="chipDot" title="저장하지 않은 변경"></span>
+  </div>
+
+  <div class="top-actions">
+    <button class="btn ghost" id="btnOpen" title="파일 열기 (Ctrl+O)">
+      <svg viewBox="0 0 24 24" class="i"><path d="M4 7a2 2 0 0 1 2-2h3l2 2h7a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+      <span class="btn-label">파일 열기</span>
+    </button>
+    <div class="menu-wrap">
+      <button class="btn ghost" id="btnNew" aria-haspopup="true" aria-expanded="false">
+        <svg viewBox="0 0 24 24" class="i"><path d="M12 5v14M5 12h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+        <span class="btn-label">새로 만들기</span>
+      </button>
+      <div class="menu" id="newMenu" hidden>
+        <button data-new="xlsx"><span class="menu-ico">▦</span> 새 엑셀 문서 <em>.xlsx</em></button>
+        <button data-new="pptx"><span class="menu-ico">▤</span> 새 파워포인트 <em>.pptx</em></button>
+      </div>
+    </div>
+    <div class="menu-wrap">
+      <button class="btn primary" id="btnSave" title="저장 (Ctrl+S)">
+        <svg viewBox="0 0 24 24" class="i"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="btn-label">저장</span>
+      </button>
+      <div class="menu menu-right" id="saveMenu" hidden>
+        <button data-save="xlsx">엑셀(.xlsx)로 저장</button>
+        <button data-save="csv">CSV(.csv)로 저장 <em>현재 시트</em></button>
+        <button data-save="pptx">파워포인트(.pptx)로 저장</button>
+      </div>
+    </div>
+    <button class="icon-btn" id="btnHelp" title="사용 방법" aria-label="사용 방법">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.7.3-1 .8-1 1.6v.3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><circle cx="12" cy="16.9" r=".95" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ═══ 시작 화면 ═══ -->
+<main class="view landing" id="landingView">
+  <div class="hero">
+    <span class="hero-badge">오피스 없이, 브라우저에서</span>
+    <h1>엑셀 · PPT 파일을<br><span class="accent">그대로 열고, 바로 저장</span></h1>
+    <p class="hero-sub">파일을 끌어다 놓으면 편집기가 열립니다. 모든 처리는 이 브라우저 안에서만 이루어지고 파일은 어디로도 전송되지 않습니다.</p>
+
+    <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="파일 끌어다 놓기 또는 클릭해서 열기">
+      <div class="dz-glow"></div>
+      <svg class="dz-ico" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 16V5m0 0L7.5 9.5M12 5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M4.5 15v2.5A2.5 2.5 0 0 0 7 20h10a2.5 2.5 0 0 0 2.5-2.5V15" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      <strong>파일을 여기에 끌어다 놓세요</strong>
+      <span>또는 <u>클릭해서 선택</u> · .xlsx · .xlsb · .xls · .csv · .pptx</span>
+    </div>
+
+    <div class="hero-actions">
+      <button class="btn big" id="heroNewX"><span class="mini-ico xls">▦</span> 새 엑셀 문서</button>
+      <button class="btn big" id="heroNewP"><span class="mini-ico ppt">▤</span> 새 파워포인트</button>
+    </div>
+
+    <div class="feature-grid">
+      <div class="feature">
+        <div class="f-ico">▦</div>
+        <h3>엑셀 편집</h3>
+        <p>셀 편집·수식, 행/열 추가·삭제, 시트 전환·이름 변경, 찾기, <b>.xlsx · .csv</b> 저장</p>
+      </div>
+      <div class="feature">
+        <div class="f-ico">▤</div>
+        <h3>PPT 슬라이드</h3>
+        <p>썸네일·캔버스 미리보기에서 텍스트 상자를 골라 수정, 순서·복제·삭제</p>
+      </div>
+      <div class="feature">
+        <div class="f-ico">🗜</div>
+        <h3>이미지 압축</h3>
+        <p>슬라이드에 박힌 사진을 해상도·품질 조절로 한 번에 줄이고 절감량 확인</p>
+      </div>
+      <div class="feature">
+        <div class="f-ico">🔒</div>
+        <h3>100% 브라우저</h3>
+        <p>업로드 없음. 서버·계정·설치가 필요 없고 인터넷이 끊겨도 열립니다</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<!-- ═══ 엑셀 모드 ═══ -->
+<main class="view xls-view" id="excelView" hidden>
+  <div class="toolbar">
+    <div class="tb-group">
+      <button class="icon-btn" id="xUndo" title="실행 취소 (Ctrl+Z)" aria-label="실행 취소" disabled>
+        <svg viewBox="0 0 24 24"><path d="M9 7H5V3M5.6 7.3A8 8 0 1 1 4 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" transform="translate(2 2) scale(.9)"/></svg>
+      </button>
+      <button class="icon-btn" id="xRedo" title="다시 실행 (Ctrl+Y)" aria-label="다시 실행" disabled>
+        <svg viewBox="0 0 24 24"><path d="M15 7h4V3M18.4 7.3A8 8 0 1 0 20 12" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" transform="translate(0 2) scale(.9)"/></svg>
+      </button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="btn tiny" id="xRowAdd" title="현재 행 위에 행 추가">행 ＋</button>
+      <button class="btn tiny" id="xRowDel" title="현재 행 삭제">행 －</button>
+      <button class="btn tiny" id="xColAdd" title="현재 열 왼쪽에 열 추가">열 ＋</button>
+      <button class="btn tiny" id="xColDel" title="현재 열 삭제">열 －</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="btn tiny" id="xSheetAdd" title="시트 추가">시트 ＋</button>
+      <button class="btn tiny" id="xSheetRename" title="현재 시트 이름 변경">이름 변경</button>
+      <button class="btn tiny" id="xSheetDel" title="현재 시트 삭제">시트 －</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="btn tiny" id="xFindToggle" title="찾기 (Ctrl+F)">
+        <svg viewBox="0 0 24 24" class="i sm"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+        찾기
+      </button>
+    </div>
+    <div class="tb-spacer"></div>
+    <div class="tb-group tb-right"><span class="tb-label" id="xDim">0행 × 0열</span></div>
+  </div>
+
+  <div class="findbar" id="findbar" hidden>
+    <svg viewBox="0 0 24 24" class="i sm"><circle cx="11" cy="11" r="6" fill="none" stroke="currentColor" stroke-width="1.9"/><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+    <input id="findInput" type="search" placeholder="시트에서 찾기" autocomplete="off" spellcheck="false">
+    <span class="find-count" id="findCount">0 / 0</span>
+    <button class="icon-btn sm" id="findPrev" title="이전 결과" aria-label="이전 결과">
+      <svg viewBox="0 0 24 24"><path d="M12 19V5m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="icon-btn sm" id="findNext" title="다음 결과" aria-label="다음 결과">
+      <svg viewBox="0 0 24 24"><path d="M12 5v14m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="icon-btn sm" id="findClose" title="닫기 (Esc)" aria-label="찾기 닫기">
+      <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+    </button>
+  </div>
+
+  <div class="fxbar">
+    <div class="fx-ref" id="fxRef">A1</div>
+    <div class="fx-fx" title="수식 입력">fx</div>
+    <input id="fxInput" class="fx-input" spellcheck="false" autocomplete="off" aria-label="선택한 셀의 값 또는 수식">
+  </div>
+
+  <div class="grid-wrap">
+    <div class="grid-corner" id="gridCorner"></div>
+    <div class="colhead-view" id="colheadView"><div class="colhead-track" id="colheadTrack"></div></div>
+    <div class="rowhead-view" id="rowheadView"><div class="rowhead-track" id="rowheadTrack"></div></div>
+    <div class="cell-view" id="cellView" tabindex="0">
+      <div class="cell-inner" id="cellInner"></div>
+      <input id="cellEditor" class="cell-editor" hidden autocomplete="off" spellcheck="false" aria-label="셀 값 입력">
+    </div>
+  </div>
+
+  <div class="sheetbar">
+    <div class="sheet-tabs" id="sheetTabs"></div>
+    <button class="tab-add" id="sheetAddBtn" title="시트 추가" aria-label="시트 추가">＋</button>
+    <div class="sheetbar-right">
+      <span class="status-text" id="xSummary"></span>
+      <span class="status-hint" id="xHint">클릭해 선택 · 더블클릭/입력으로 편집</span>
+    </div>
+  </div>
+</main>
+
+<!-- ═══ PPT 모드 ═══ -->
+<main class="view ppt-view" id="pptView" hidden>
+  <div class="toolbar">
+    <div class="tb-group">
+      <button class="btn tiny" id="pAdd" title="빈 슬라이드 추가 (도형은 비웁니다)">＋ 슬라이드</button>
+      <button class="btn tiny" id="pDup" title="현재 슬라이드 복제">복제</button>
+      <button class="btn tiny" id="pDel" title="현재 슬라이드 삭제">삭제</button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group">
+      <button class="icon-btn" id="pUp" title="슬라이드 위로 (Alt+↑)" aria-label="위로 이동">
+        <svg viewBox="0 0 24 24"><path d="M12 19V5m0 0-6 6m6-6 6 6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button class="icon-btn" id="pDown" title="슬라이드 아래로 (Alt+↓)" aria-label="아래로 이동">
+        <svg viewBox="0 0 24 24"><path d="M12 5v14m0 0 6-6m-6 6-6-6" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+    <div class="tb-sep"></div>
+    <div class="tb-group"><span class="tb-label" id="pPos">1 / 1</span></div>
+    <div class="tb-spacer"></div>
+    <div class="tb-group">
+      <span class="tb-label muted" id="pSizeInfo"></span>
+      <button class="btn tiny accent" id="pCompress" title="슬라이드에 들어간 이미지 용량 줄이기">
+        <svg viewBox="0 0 24 24" class="i sm"><path d="M9 4V9H4M15 4v5h5M9 20v-5H4M15 20v-5h5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        이미지 압축
+      </button>
+    </div>
+  </div>
+
+  <div class="ppt-body">
+    <aside class="thumbs" id="thumbs" aria-label="슬라이드 목록"></aside>
+    <div class="stage" id="stage">
+      <div class="stage-scroll" id="stageScroll">
+        <div class="canvas-hold" id="canvasHold">
+          <div class="slide-canvas" id="slideCanvas"></div>
+          <input id="inlineEditor" class="inline-editor" hidden autocomplete="off">
+        </div>
+      </div>
+    </div>
+    <aside class="inspector" id="inspector">
+      <div class="insp-head" id="inspHead">텍스트</div>
+      <div class="insp-body" id="inspBody"></div>
+    </aside>
+  </div>
+</main>
+
+<!-- 드래그 오버레이 -->
+<div class="drop-overlay" id="dropOverlay" hidden>
+  <div class="do-card">
+    <svg viewBox="0 0 24 24" class="do-ico"><path d="M12 16V5m0 0L7.5 9.5M12 5l4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M4.5 15v2.5A2.5 2.5 0 0 0 7 20h10a2.5 2.5 0 0 0 2.5-2.5V15" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+    <strong>여기에 놓으면 열립니다</strong>
+    <span>.xlsx · .xlsb · .xls · .csv · .pptx</span>
+  </div>
+</div>
+
+<!-- 이미지 압축 모달 -->
+<div class="modal" id="cmpModal" hidden>
+  <div class="modal-card wide" role="dialog" aria-modal="true" aria-labelledby="cmpTitle">
+    <header class="modal-head">
+      <h2 id="cmpTitle">이미지 일괄 압축</h2>
+      <button class="icon-btn" id="cmpClose" aria-label="닫기">
+        <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+    <div class="modal-body">
+      <div class="cmp-controls">
+        <label class="field">
+          <span>최대 해상도</span>
+          <select id="cmpMax">
+            <option value="0">원본 유지</option>
+            <option value="1920">1920px (FHD)</option>
+            <option value="1600">1600px</option>
+            <option value="1280" selected>1280px (HD)</option>
+            <option value="1024">1024px</option>
+            <option value="800">800px</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>JPEG 품질 <b id="cmpQLabel">75%</b></span>
+          <input type="range" id="cmpQuality" min="50" max="90" step="5" value="75">
+        </label>
+        <div class="field cmp-total">
+          <span>예상 절감</span>
+          <strong id="cmpTotal">계산 중…</strong>
+        </div>
+      </div>
+      <p class="cmp-note">투명한 PNG는 투명도를 지켜 PNG로, 나머지는 JPEG로 다시 저장합니다. 필요 없는 이미지는 체크를 풀어 제외할 수 있습니다.</p>
+      <div class="cmp-list" id="cmpList"></div>
+    </div>
+    <footer class="modal-foot">
+      <span class="cmp-foot-info" id="cmpFootInfo"></span>
+      <button class="btn ghost" id="cmpCancel">취소</button>
+      <button class="btn primary" id="cmpApply" disabled>압축 적용</button>
+    </footer>
+  </div>
+</div>
+
+<!-- 도움말 모달 -->
+<div class="modal" id="helpModal" hidden>
+  <div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+    <header class="modal-head">
+      <h2 id="helpTitle">사용 방법</h2>
+      <button class="icon-btn" id="helpClose" aria-label="닫기">
+        <svg viewBox="0 0 24 24"><path d="m6 6 12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"/></svg>
+      </button>
+    </header>
+    <div class="modal-body help-body">
+      <h3>여는 형식</h3>
+      <p><code>.xlsx</code> <code>.xlsb</code> <code>.xls</code> <code>.csv</code> → 엑셀 모드 · <code>.pptx</code> → 파워포인트 모드. 파일을 창에 끌어다 놓거나 <b>파일 열기</b>를 누르세요.</p>
+      <h3>엑셀</h3>
+      <ul>
+        <li>셀 클릭 → 선택, 더블클릭 · <kbd>F2</kbd> · 그냥 타이핑 → 바로 편집, <kbd>Enter</kbd> 확정 / <kbd>Esc</kbd> 취소</li>
+        <li><kbd>=</kbd>로 시작하면 수식입니다. 계산 결과는 엑셀에서 열 때 반영됩니다.</li>
+        <li>행/열 추가·삭제, 시트 추가·이름 변경, <kbd>Ctrl</kbd>+<kbd>F</kbd> 찾기, <kbd>Ctrl</kbd>+<kbd>Z</kbd> 되돌리기</li>
+        <li>저장은 <b>.xlsx</b> 또는 현재 시트를 <b>.csv</b>로. <code>.xlsb</code>로 열었어도 <code>.xlsx</code>로 저장됩니다.</li>
+      </ul>
+      <h3>파워포인트</h3>
+      <ul>
+        <li>왼쪽 썸네일로 슬라이드 이동, 위/아래 버튼으로 순서 변경, 복제·삭제</li>
+        <li>캔버스에서 텍스트를 클릭하면 오른쪽에 문단별 편집창이 열립니다. 더블클릭하면 그 자리에서 바로 고칠 수 있습니다.</li>
+        <li>글꼴·크기·색 등 서식은 원본 그대로 두고 글자만 바꿉니다.</li>
+        <li><b>이미지 압축</b>: 최대 해상도와 JPEG 품질을 고르면 절감 예상량을 먼저 보여주고, 적용하면 파일에 반영됩니다.</li>
+      </ul>
+      <h3>안전</h3>
+      <p>모든 처리는 이 브라우저 안에서 이뤄집니다. 파일이 서버로 올라가지 않고, 계정 로그인도 필요 없습니다.</p>
+    </div>
+  </div>
+</div>
+
+<!-- 확인 대화상자 -->
+<div class="modal" id="confirmModal" hidden>
+  <div class="modal-card small" role="dialog" aria-modal="true">
+    <header class="modal-head"><h2 id="confirmTitle">확인</h2></header>
+    <div class="modal-body"><p id="confirmMsg"></p></div>
+    <footer class="modal-foot">
+      <button class="btn ghost" id="confirmNo">취소</button>
+      <button class="btn primary" id="confirmYes">확인</button>
+    </footer>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<footer class="appfoot">
+  <a href="index.html#/home">← 크리에이터 툴킷</a>
+  <span class="foot-dot">·</span>
+  <span>파일은 서버로 전송되지 않습니다</span>
+  <span class="foot-dot">·</span>
+  <span>SheetJS · JSZip</span>
+</footer>
+
+<input type="file" id="fileInput" accept=".xlsx,.xlsb,.xls,.csv,.txt,.pptx" hidden>
+
+<script src="lib/xlsx.full.min.js"></script>
+<script src="lib/jszip.min.js"></script>
+<script src="js/office/excel.js"></script>
+<script src="js/office/pptx.js"></script>
+<script src="js/office/app.js"></script>
+</body>
+</html>

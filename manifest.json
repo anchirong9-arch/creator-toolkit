@@ -1,7 +1,7 @@
 {
-  "name": "크리에이터 툴킷 — 7가지 유틸리티",
+  "name": "크리에이터 툴킷 — 8가지 유틸리티",
   "short_name": "툴킷",
-  "description": "EXIF 제거·모자이크, URL 추적 제거, PDF↔이미지, 이미지 압축, QR 생성, 비율 리사이즈, 일괄 워터마크. 모든 처리는 내 폰 안에서만.",
+  "description": "EXIF 제거·모자이크, URL 추적 제거, PDF↔이미지, 이미지 압축, QR 생성, 비율 리사이즈, 일괄 워터마크, 엑셀·PPT 편집. 모든 처리는 내 브라우저 안에서만.",
   "lang": "ko",
   "dir": "ltr",
   "start_url": "./",
@@ -20,6 +20,7 @@
   "shortcuts": [
     { "name": "URL 추적 제거", "url": "./#/url" },
     { "name": "QR 생성기", "url": "./#/qr" },
-    { "name": "이미지 압축", "url": "./#/compress" }
+    { "name": "이미지 압축", "url": "./#/compress" },
+    { "name": "엑셀·PPT 편집기", "url": "./office.html" }
   ]
 }
