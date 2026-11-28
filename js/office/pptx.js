@@ -61,7 +61,9 @@
     return doc;
   }
   function serializeXml(doc) {
-    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + new XMLSerializer().serializeToString(doc);
+    let out = new XMLSerializer().serializeToString(doc);
+    out = out.replace(/^\uFEFF/, '').replace(/^\s*<\?xml[^>]*\?>\s*/i, '');
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\r\n' + out;
   }
   function dirOf(p) { const i = p.lastIndexOf('/'); return i < 0 ? '' : p.slice(0, i); }
   function resolvePath(base, target) {

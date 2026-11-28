@@ -536,3 +536,12 @@ body.dirty .chip-dot{display:block;}
 .save-wrap .btn.caret{
   border-radius:0 10px 10px 0;padding:0 7px;border-left:1px solid rgba(11,14,20,.28);font-size:11px;min-width:24px;
 }
+
+/* 슬라이드 스테이지 — 캔버스를 최대한 크게, 캡션은 아래에 */
+.stage{align-items:stretch;}
+.stage-scroll{
+  width:100%;flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:12px;min-height:0;
+}
+.canvas-hold{flex:0 0 auto;}
+.stage-cap{flex:0 0 auto;margin-top:0;}
