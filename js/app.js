@@ -328,7 +328,7 @@
     v.innerHTML =
       '<section class="home-hero">' +
       '<h1>폰 안에서 끝내는<br><span>8가지 크리에이터 도구</span></h1>' +
-      '<p>사진·PDF·링크를 올리면 브라우저 안에서만 처리해요. 서버로 보내지 않아서 유출 걱정이 없고, 홈 화면에 추가하면 앱처럼 열립니다.</p>' +
+      '<p>사진·PDF·링크·엑셀·PPT를 올리면 브라우저 안에서만 처리해요. 서버로 보내지 않아서 유출 걱정이 없고, 홈 화면에 추가하면 앱처럼 열립니다.</p>' +
       '<div class="hero-badges"><span class="pill">서버 전송 0</span><span class="pill">설치 없이 사용</span><span class="pill">오프라인 OK</span><span class="pill">무료</span></div>' +
       '</section>' +
       '<section class="home-grid">' +

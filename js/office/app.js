@@ -24,6 +24,22 @@
     toastTimer = setTimeout(() => { el.hidden = true; }, kind === 'err' ? 3600 : 2400);
   };
 
+  let loadingCount = 0;
+  OE.loading = function (msg) {
+    const bar = $('loadingBar');
+    if (!bar) return;
+    loadingCount++;
+    $('loadingText').textContent = msg || '불러오는 중…';
+    bar.hidden = false;
+  };
+  OE.loadingDone = function () {
+    loadingCount = Math.max(0, loadingCount - 1);
+    if (!loadingCount) {
+      const bar = $('loadingBar');
+      if (bar) bar.hidden = true;
+    }
+  };
+
   OE.confirm = function (title, msg) {
     return new Promise((resolve) => {
       const modal = $('confirmModal');
@@ -124,8 +140,8 @@
     OE.toast(kind === 'excel' ? '엑셀 파일을 읽는 중…' : 'PPT 파일을 읽는 중…');
     try {
       if (kind === 'excel') {
-        OE.toast('엑셀 엔진을 준비하는 중…');
-        await window.XL.ensure();
+        OE.loading('엑셀 엔진을 불러오는 중…');
+        try { await window.XL.ensure(); } finally { OE.loadingDone(); }
         const info = await window.XL.open(file);
         setMode('excel');
         setChip(info.name, info.size);
@@ -141,13 +157,15 @@
       OE.toast('파일을 열지 못했어요 · ' + (e && e.message ? e.message : '알 수 없는 오류'), 'err');
     } finally {
       busy = false;
+      OE.loadingDone();
     }
   }
 
   async function newExcel() {
     if (!(await guardUnsaved())) return;
-    OE.toast('엑셀 엔진을 준비하는 중…');
+    OE.loading('엑셀 엔진을 불러오는 중…');
     try { await window.XL.ensure(); } catch (e) { OE.toast(e.message || '엑셀 엔진을 불러오지 못했어요', 'err'); return; }
+    finally { OE.loadingDone(); }
     window.XL.create();
     setMode('excel');
     setChip('새 엑셀.xlsx', 0);
@@ -158,7 +176,7 @@
     if (!(await guardUnsaved())) return;
     if (busy) return;
     busy = true;
-    OE.toast('빈 프레젠테이션을 준비하는 중…');
+    OE.loading('빈 프레젠테이션을 준비하는 중…');
     try {
       const info = await window.PPTX.createBlank('office/blank.pptx');
       setMode('pptx');
@@ -169,6 +187,7 @@
       OE.toast('새 PPT를 만들지 못했어요 · ' + (e && e.message ? e.message : ''), 'err');
     } finally {
       busy = false;
+      OE.loadingDone();
     }
   }
 
@@ -260,7 +279,9 @@
       });
     });
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.menu-wrap')) pairs.forEach(([, m]) => { m.hidden = true; });
+      if (!e.target.closest('.menu-wrap')) {
+        pairs.forEach(([b, m]) => { m.hidden = true; b.setAttribute('aria-expanded', 'false'); });
+      }
     });
     $('newMenu').addEventListener('click', (e) => {
       const b = e.target.closest('[data-new]');
