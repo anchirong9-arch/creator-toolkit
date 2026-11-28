@@ -286,7 +286,8 @@
   /* xlsx 는 <f>수식</f><v></v> 처럼 캐시 값이 비어 있으면 SheetJS 가 셀을 통째로 버립니다.
      그런 셀을 시트 XML 에서 직접 읽어 되살립니다. (공유 수식은 상대 참조를 옮겨 계산) */
   async function restoreFormulas(u8) {
-    if (!window.JSZip) return;
+    S.debug = { step: 'start', restored: 0, cells: 0, err: null };
+    if (!window.JSZip) { S.debug.step = 'no-jszip'; return; }
     let zip;
     try { zip = await JSZip.loadAsync(u8); } catch (e) { return; }
     const wbFile = zip.file('xl/workbook.xml');
@@ -308,7 +309,7 @@
       const name = decodeXml((tag.match(/\bname="([^"]*)"/) || [])[1] || '');
       const rid = (tag.match(/\br:id="([^"]+)"/) || [])[1];
       const sheet = byName[name];
-      if (!sheet || !rid || !relMap[rid]) continue;
+      if (!sheet || !rid || !relMap[rid]) { S.debug.step = 'skip-sheet:' + name; continue; }
       const part = 'xl/' + relMap[rid];
       const f = zip.file(part);
       if (!f) continue;
@@ -333,12 +334,14 @@
           formula = shiftFormula(m.f, pos.r - m.r, pos.c - m.c);
         }
         if (!formula) continue;
-        const hasVal = /<v>[^<]*<\/v>/.test(c);
         const cur = cellAt(sheet, pos.r, pos.c);
         if (cur && cur.f) continue;
-        const next = { f: formula, t: 'n' };
-        if (cur && cur.v != null && cur.v !== '' && hasVal) next.v = cur.v;
-        setCell(sheet, pos.r, pos.c, Object.assign({}, cur || {}, next));
+        const next = Object.assign({}, cur || {});
+        next.f = formula;
+        next.t = 'n';
+        if (cur && (cur.v == null || cur.v === '')) { delete next.v; }
+        setCell(sheet, pos.r, pos.c, next);
+        S.debug.restored++;
       }
       sheet.headerRow = detectHeader(sheet);
     }
@@ -1205,6 +1208,7 @@
       else { commitEdit(false); toggleFind(false); }
     },
     onChange: (fn) => { S.onChange = fn; },
+    debug: () => JSON.parse(JSON.stringify(S.debug || {})),
     focusGrid: () => E.cellView && E.cellView.focus({ preventScroll: true })
   };
 })();
