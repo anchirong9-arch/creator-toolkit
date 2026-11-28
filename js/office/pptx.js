@@ -618,7 +618,36 @@
     renderCanvas();
     renderInspector();
     renderToolbar();
+    renderPreview();
     syncDirty();
+  }
+
+  function slideRatioLabel() {
+    const r = S.sldSz.cx / S.sldSz.cy;
+    if (Math.abs(r - 16 / 9) < 0.02) return '16:9';
+    if (Math.abs(r - 4 / 3) < 0.02) return '4:3';
+    if (Math.abs(r - 16 / 10) < 0.02) return '16:10';
+    return (S.sldSz.cx / 914400).toFixed(2) + '×' + (S.sldSz.cy / 914400).toFixed(2) + 'in';
+  }
+
+  function renderPreview() {
+    if (!E.pvBar) return;
+    if (!S.slides.length) { E.pvBar.hidden = true; return; }
+    E.pvBar.hidden = false;
+    E.pvName.textContent = S.fileName;
+    E.pvMeta.textContent = '슬라이드 ' + S.slides.length + '장 · ' + fmtBytes(S.fileSize) + ' · ' + slideRatioLabel() +
+      ' · 텍스트 상자 ' + (S.slides[S.active] ? S.slides[S.active].uiShapes.length : 0) + '개';
+    if (E.stageCap) {
+      const sel = S.sel >= 0 && S.slides[S.active] && S.slides[S.active].uiShapes[S.sel];
+      E.stageCap.textContent = sel
+        ? '“' + (shPreviewText(sel) || sel.label) + '” 선택됨 · 오른쪽에서 문단 편집'
+        : '텍스트를 클릭해 선택 · 더블클릭하면 그 자리에서 수정';
+    }
+  }
+
+  function shPreviewText(sh) {
+    const t = sh.paras.map((p) => p.text).join(' ').trim();
+    return t.length > 24 ? t.slice(0, 24) + '…' : t;
   }
 
   function renderThumbs() {
@@ -676,6 +705,7 @@
     const slide = S.slides[S.active];
     if (!slide) return;
     slide.uiShapes.forEach((s) => s.box.classList.toggle('selected', s.idx === S.sel));
+    renderPreview();
   }
 
   function selectShape(idx) {
@@ -1310,6 +1340,7 @@
     S.fileSize = blob.size;
     S.dirty = false;
     if (E.pSizeInfo) E.pSizeInfo.textContent = fmtBytes(S.fileSize);
+    renderPreview();
     syncDirty();
     return { name, size: blob.size };
   }

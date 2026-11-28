@@ -127,12 +127,12 @@
         const info = await window.XL.open(file);
         setMode('excel');
         setChip(info.name, info.size);
-        OE.toast('엑셀 문서를 열었어요 · 시트 ' + info.sheets + '개', 'ok');
+        OE.toast('엑셀 미리보기 · 시트 ' + info.sheets + '개, ' + (info.rows || 0) + '행', 'ok');
       } else {
         const info = await window.PPTX.open(file);
         setMode('pptx');
         setChip(info.name, info.size);
-        OE.toast('슬라이드 ' + info.slides + '장을 열었어요', 'ok');
+        OE.toast('슬라이드 미리보기 · ' + info.slides + '장', 'ok');
       }
     } catch (e) {
       console.error(e);
@@ -330,7 +330,8 @@
       xRowAdd: $('xRowAdd'), xRowDel: $('xRowDel'), xColAdd: $('xColAdd'), xColDel: $('xColDel'),
       xSheetAdd: $('xSheetAdd'), xSheetRename: $('xSheetRename'), xSheetDel: $('xSheetDel'),
       xFindToggle: $('xFindToggle'), findbar: $('findbar'), findInput: $('findInput'),
-      findCount: $('findCount'), findPrev: $('findPrev'), findNext: $('findNext'), findClose: $('findClose')
+      findCount: $('findCount'), findPrev: $('findPrev'), findNext: $('findNext'), findClose: $('findClose'),
+      pvBar: $('xPreview'), pvName: $('pvNameX'), pvMeta: $('pvMetaX')
     });
 
     window.PPTX.init({
@@ -342,7 +343,8 @@
       cmpModal: $('cmpModal'), cmpClose: $('cmpClose'), cmpCancel: $('cmpCancel'),
       cmpApply: $('cmpApply'), cmpMax: $('cmpMax'), cmpQuality: $('cmpQuality'),
       cmpQLabel: $('cmpQLabel'), cmpList: $('cmpList'), cmpTotal: $('cmpTotal'),
-      cmpFootInfo: $('cmpFootInfo')
+      cmpFootInfo: $('cmpFootInfo'),
+      pvBar: $('pPreview'), pvName: $('pvNameP'), pvMeta: $('pvMetaP'), stageCap: $('stageCap')
     });
 
     window.XL.onChange((s) => {

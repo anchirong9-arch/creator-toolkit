@@ -202,7 +202,7 @@
     S.find = { open: false, q: '', hits: [], idx: -1 };
     resetScroll();
     renderAll();
-    return { name: file.name, size: file.size, ext: ext, sheets: S.sheets.length };
+    return { name: file.name, size: file.size, ext: ext, sheets: S.sheets.length, rows: usedRange(S.sheets[0]).rows };
   }
 
   function sheetFromWs(ws, name) {
@@ -240,11 +240,49 @@
     if (ws['!merges']) {
       s.merges = ws['!merges'].map((m) => ({ s: { r: m.s.r, c: m.s.c }, e: { r: m.e.r, c: m.e.c } }));
     }
+    if (!s.cols.length) s.cols = autofit(s);
+    s.headerRow = detectHeader(s);
     return s;
+  }
+
+  /* 내용에 맞춰 열 폭을 잡아 표가 깔끔해 보이게 */
+  function autofit(s) {
+    const widths = [];
+    const limit = Math.min(s.rows.length, 200);
+    for (let r = 0; r < limit; r++) {
+      const row = s.rows[r];
+      if (!row) continue;
+      for (let c = 0; c < row.length && c < 60; c++) {
+        const cell = row[c];
+        if (!cell) continue;
+        const t = displayText(cell);
+        let w = 0;
+        for (const ch of Array.from(t.slice(0, 42))) {
+          w += /[\u1100-\u11FF\u2E80-\uD7FF\uAC00-\uD7A3\uFF00-\uFF60]/.test(ch) ? 13.2 : 7.3;
+        }
+        const need = clamp(w + 18, 56, 300);
+        if (!widths[c] || widths[c] < need) widths[c] = need;
+      }
+    }
+    for (let i = 0; i < widths.length; i++) if (!widths[i]) widths[i] = 96;
+    return widths;
+  }
+
+  /* 첫 5행 중 값이 2개 이상인 행을 머리글로 본다 (화면 표시용) */
+  function detectHeader(s) {
+    for (let r = 0; r < Math.min(s.rows.length, 5); r++) {
+      const row = s.rows[r];
+      if (!row) continue;
+      let n = 0;
+      for (let c = 0; c < row.length; c++) if (row[c] && String(displayText(row[c])).trim() !== '') n++;
+      if (n >= 2) return r;
+    }
+    return -1;
   }
 
   function newBook() {
     S.sheets = [blankSheet('Sheet1')];
+    S.sheets[0].headerRow = -1;
     S.active = 0;
     S.sel = { r: 0, c: 0 };
     S.selEnd = null;
@@ -263,7 +301,21 @@
     render();
     renderFx();
     renderSummary();
+    renderPreview();
     syncDirty();
+  }
+
+  function renderPreview() {
+    if (!E.pvBar) return;
+    const s = cur();
+    if (!s) { E.pvBar.hidden = true; return; }
+    E.pvBar.hidden = false;
+    const u = usedRange(s);
+    const ext = (S.fileName.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
+    const meta = ['시트 ' + S.sheets.length + '개', '사용 범위 ' + (u.rows || 0) + '×' + (u.cols || 0)];
+    if (ext && ext !== 'xlsx') meta.push(ext.toUpperCase() + ' 열기 → xlsx로 저장');
+    E.pvName.textContent = S.fileName;
+    E.pvMeta.textContent = meta.join(' · ');
   }
 
   function resetScroll() {
@@ -355,7 +407,7 @@
           const isActive = r === S.sel.r && c === S.sel.c;
           const div = document.createElement('div');
           const num = isNumericCell(cell);
-          let cls = 'cell' + (num ? ' n' : '');
+          let cls = 'cell' + (num ? ' n' : '') + (s.headerRow === r ? ' hd' : '');
           if (isSel) cls += ' sel';
           if (isActive && !S.editing) cls += ' active';
           if (hitSet && hitSet.has(r + ':' + c)) {

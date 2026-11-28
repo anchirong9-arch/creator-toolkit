@@ -72,7 +72,7 @@
   <div class="hero">
     <span class="hero-badge">오피스 없이, 브라우저에서</span>
     <h1>엑셀 · PPT 파일을<br><span class="accent">그대로 열고, 바로 저장</span></h1>
-    <p class="hero-sub">파일을 끌어다 놓으면 편집기가 열립니다. 모든 처리는 이 브라우저 안에서만 이루어지고 파일은 어디로도 전송되지 않습니다.</p>
+    <p class="hero-sub">파일을 끌어다 놓으면 <b>표·슬라이드 미리보기</b>가 바로 뜨고, 그 위에서 그대로 고칠 수 있어요. 모든 처리는 이 브라우저 안에서만 이루어지고 파일은 어디로도 전송되지 않습니다.</p>
 
     <div class="dropzone" id="dropzone" tabindex="0" role="button" aria-label="파일 끌어다 놓기 또는 클릭해서 열기">
       <div class="dz-glow"></div>
@@ -92,13 +92,13 @@
     <div class="feature-grid">
       <div class="feature">
         <div class="f-ico">▦</div>
-        <h3>엑셀 편집</h3>
-        <p>셀 편집·수식, 행/열 추가·삭제, 시트 전환·이름 변경, 찾기, <b>.xlsx · .csv</b> 저장</p>
+        <h3>엑셀 미리보기 · 편집</h3>
+        <p>올리면 시트 표가 바로 보이고 셀 클릭으로 편집. 행/열·시트 관리, 수식, 찾기, <b>.xlsx · .csv</b> 저장</p>
       </div>
       <div class="feature">
         <div class="f-ico">▤</div>
-        <h3>PPT 슬라이드</h3>
-        <p>썸네일·캔버스 미리보기에서 텍스트 상자를 골라 수정, 순서·복제·삭제</p>
+        <h3>PPT 슬라이드 미리보기</h3>
+        <p>썸네일 목록과 현재 슬라이드 화면(배경·텍스트 위치·내장 이미지)을 바로 보여주고 그 자리에서 수정</p>
       </div>
       <div class="feature">
         <div class="f-ico">🗜</div>
@@ -147,6 +147,13 @@
     </div>
     <div class="tb-spacer"></div>
     <div class="tb-group tb-right"><span class="tb-label" id="xDim">0행 × 0열</span></div>
+  </div>
+
+  <div class="preview-bar" id="xPreview" hidden>
+    <span class="pv-badge">미리보기</span>
+    <span class="pv-name" id="pvNameX"></span>
+    <span class="pv-meta" id="pvMetaX"></span>
+    <span class="pv-hint">셀을 클릭하면 바로 편집 · 더블클릭하면 입력</span>
   </div>
 
   <div class="findbar" id="findbar" hidden>
@@ -219,14 +226,25 @@
     </div>
   </div>
 
+  <div class="preview-bar" id="pPreview" hidden>
+    <span class="pv-badge">미리보기</span>
+    <span class="pv-name" id="pvNameP"></span>
+    <span class="pv-meta" id="pvMetaP"></span>
+    <span class="pv-hint">텍스트를 클릭하면 오른쪽에서 편집 · 더블클릭은 바로 수정</span>
+  </div>
+
   <div class="ppt-body">
-    <aside class="thumbs" id="thumbs" aria-label="슬라이드 목록"></aside>
+    <aside class="thumbs" aria-label="슬라이드 목록">
+      <div class="thumbs-head">슬라이드</div>
+      <div class="thumbs-list" id="thumbs"></div>
+    </aside>
     <div class="stage" id="stage">
       <div class="stage-scroll" id="stageScroll">
         <div class="canvas-hold" id="canvasHold">
           <div class="slide-canvas" id="slideCanvas"></div>
           <input id="inlineEditor" class="inline-editor" hidden autocomplete="off">
         </div>
+        <div class="stage-cap" id="stageCap">슬라이드를 클릭해 텍스트를 고르세요</div>
       </div>
     </div>
     <aside class="inspector" id="inspector">
