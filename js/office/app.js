@@ -124,6 +124,8 @@
     OE.toast(kind === 'excel' ? '엑셀 파일을 읽는 중…' : 'PPT 파일을 읽는 중…');
     try {
       if (kind === 'excel') {
+        OE.toast('엑셀 엔진을 준비하는 중…');
+        await window.XL.ensure();
         const info = await window.XL.open(file);
         setMode('excel');
         setChip(info.name, info.size);
@@ -144,6 +146,8 @@
 
   async function newExcel() {
     if (!(await guardUnsaved())) return;
+    OE.toast('엑셀 엔진을 준비하는 중…');
+    try { await window.XL.ensure(); } catch (e) { OE.toast(e.message || '엑셀 엔진을 불러오지 못했어요', 'err'); return; }
     window.XL.create();
     setMode('excel');
     setChip('새 엑셀.xlsx', 0);

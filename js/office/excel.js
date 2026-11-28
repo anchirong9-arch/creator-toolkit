@@ -179,7 +179,25 @@
     return XLSX.read(text, { type: 'string' });
   }
 
+  let xlsxPromise = null;
+  function ensureXLSX() {
+    if (window.XLSX) return Promise.resolve();
+    if (xlsxPromise) return xlsxPromise;
+    xlsxPromise = new Promise((resolve, reject) => {
+      const tag = document.createElement('script');
+      tag.src = 'lib/xlsx.full.min.js';
+      tag.onload = () => resolve();
+      tag.onerror = () => {
+        xlsxPromise = null;
+        reject(new Error('엑셀 엔진(SheetJS)을 불러오지 못했어요. 인터넷 연결을 확인해 주세요.'));
+      };
+      document.head.appendChild(tag);
+    });
+    return xlsxPromise;
+  }
+
   async function openFile(file) {
+    await ensureXLSX();
     const buf = await file.arrayBuffer();
     const u8 = new Uint8Array(buf);
     const ext = (file.name.match(/\.([^.]+)$/) || [, ''])[1].toLowerCase();
@@ -367,6 +385,7 @@
   }
 
   function newBook() {
+    if (!window.XLSX) ensureXLSX().then(() => { if (S.onChange) S.onChange({ dirty: false, name: S.fileName, sheets: S.sheets.length }); });
     S.sheets = [blankSheet('Sheet1')];
     S.sheets[0].headerRow = -1;
     S.active = 0;
@@ -1197,6 +1216,7 @@
     init,
     open: openFile,
     create: newBook,
+    ensure: ensureXLSX,
     saveXlsx,
     saveCsv,
     hasChanges: () => S.dirty,
