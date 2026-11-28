@@ -243,7 +243,7 @@
   function initMenus() {
     const pairs = [
       [$('btnNew'), $('newMenu')],
-      [$('btnSave'), $('saveMenu')]
+      [$('btnSaveMore'), $('saveMenu')]
     ];
     pairs.forEach(([btn, menu]) => {
       btn.addEventListener('click', (e) => {
@@ -272,11 +272,7 @@
     });
 
     $('btnOpen').addEventListener('click', () => $('fileInput').click());
-    $('btnSave').addEventListener('click', (e) => {
-      // 메뉴가 열려 있으면 첫 항목 실행, 아니면 주 동작
-      if (!$('saveMenu').hidden) return;
-      save(mode === 'pptx' ? 'pptx' : 'xlsx');
-    });
+    $('btnSave').addEventListener('click', () => save(mode === 'pptx' ? 'pptx' : 'xlsx'));
     $('heroNewX').addEventListener('click', newExcel);
     $('heroNewP').addEventListener('click', newPpt);
     $('btnHelp').addEventListener('click', () => { $('helpModal').hidden = false; });

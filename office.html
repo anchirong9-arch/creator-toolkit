@@ -50,11 +50,12 @@
         <button data-new="pptx"><span class="menu-ico">▤</span> 새 파워포인트 <em>.pptx</em></button>
       </div>
     </div>
-    <div class="menu-wrap">
+    <div class="menu-wrap save-wrap">
       <button class="btn primary" id="btnSave" title="저장 (Ctrl+S)">
         <svg viewBox="0 0 24 24" class="i"><path d="M12 4v10m0 0 4-4m-4 4-4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span class="btn-label">저장</span>
       </button>
+      <button class="btn primary caret" id="btnSaveMore" aria-label="저장 형식 선택" aria-haspopup="true" title="저장 형식 선택">▾</button>
       <div class="menu menu-right" id="saveMenu" hidden>
         <button data-save="xlsx">엑셀(.xlsx)로 저장</button>
         <button data-save="csv">CSV(.csv)로 저장 <em>현재 시트</em></button>

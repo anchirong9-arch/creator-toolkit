@@ -192,6 +192,9 @@
     if (!wb || !wb.SheetNames || !wb.SheetNames.length) throw new Error('시트를 찾지 못했어요. 파일이 손상되었거나 지원하지 않는 형식입니다.');
 
     S.sheets = wb.SheetNames.slice(0, 60).map((name) => sheetFromWs(wb.Sheets[name] || {}, name));
+    if (ext !== 'csv' && ext !== 'txt' && ext !== 'xls' && ext !== 'xlsb') {
+      try { await restoreFormulas(u8); } catch (e) { console.warn('수식 복원 건너뜀', e); }
+    }
     S.active = 0;
     S.sel = { r: 0, c: 0 };
     S.selEnd = null;
@@ -278,6 +281,86 @@
       if (n >= 2) return r;
     }
     return -1;
+  }
+
+  /* xlsx 는 <f>수식</f><v></v> 처럼 캐시 값이 비어 있으면 SheetJS 가 셀을 통째로 버립니다.
+     그런 셀을 시트 XML 에서 직접 읽어 되살립니다. (공유 수식은 상대 참조를 옮겨 계산) */
+  async function restoreFormulas(u8) {
+    if (!window.JSZip) return;
+    let zip;
+    try { zip = await JSZip.loadAsync(u8); } catch (e) { return; }
+    const wbFile = zip.file('xl/workbook.xml');
+    if (!wbFile) return;
+    const wbXml = await wbFile.async('string');
+    const relsFile = zip.file('xl/_rels/workbook.xml.rels');
+    const relsXml = relsFile ? await relsFile.async('string') : '';
+    const relMap = {};
+    relsXml.replace(/<Relationship\b[^>]*>/g, (tag) => {
+      const id = (tag.match(/\bId="([^"]+)"/) || [])[1];
+      const t = (tag.match(/\bTarget="([^"]+)"/) || [])[1];
+      if (id && t) relMap[id] = t.replace(/^\.?\//, '').replace(/^xl\//, '');
+      return tag;
+    });
+    const byName = {};
+    S.sheets.forEach((sh) => { byName[sh.name] = sh; });
+    const sheetTags = wbXml.match(/<sheet\b[^>]*>/g) || [];
+    for (const tag of sheetTags) {
+      const name = decodeXml((tag.match(/\bname="([^"]*)"/) || [])[1] || '');
+      const rid = (tag.match(/\br:id="([^"]+)"/) || [])[1];
+      const sheet = byName[name];
+      if (!sheet || !rid || !relMap[rid]) continue;
+      const part = 'xl/' + relMap[rid];
+      const f = zip.file(part);
+      if (!f) continue;
+      const xml = await f.async('string');
+      const shared = {};
+      const cells = xml.match(/<c\b[^>]*\/>|<c\b[^>]*>[\s\S]*?<\/c>/g) || [];
+      for (const c of cells) {
+        const fm = c.match(/<f\b([^>]*)>([\s\S]*?)<\/f>/);
+        if (!fm) continue;
+        const ref = (c.match(/\br="([A-Z]+\d+)"/) || [])[1];
+        if (!ref) continue;
+        const attrs = fm[1] || '';
+        const body = decodeXml(fm[2] || '').trim();
+        const pos = XLSX.utils.decode_cell(ref);
+        let formula = body;
+        const si = (attrs.match(/\bsi="(\d+)"/) || [])[1];
+        const isShared = /t="shared"/.test(attrs);
+        if (isShared && body) {
+          shared[si] = { f: body, r: pos.r, c: pos.c };
+        } else if (isShared && !body && shared[si]) {
+          const m = shared[si];
+          formula = shiftFormula(m.f, pos.r - m.r, pos.c - m.c);
+        }
+        if (!formula) continue;
+        const hasVal = /<v>[^<]*<\/v>/.test(c);
+        const cur = cellAt(sheet, pos.r, pos.c);
+        if (cur && cur.f) continue;
+        const next = { f: formula, t: 'n' };
+        if (cur && cur.v != null && cur.v !== '' && hasVal) next.v = cur.v;
+        setCell(sheet, pos.r, pos.c, Object.assign({}, cur || {}, next));
+      }
+      sheet.headerRow = detectHeader(sheet);
+    }
+  }
+
+  function decodeXml(t) {
+    return String(t == null ? '' : t)
+      .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"')
+      .replace(/&apos;/g, "'").replace(/&#(\d+);/g, (m, d) => String.fromCharCode(+d))
+      .replace(/&amp;/g, '&');
+  }
+
+  function shiftFormula(formula, dr, dc) {
+    if (!dr && !dc) return formula;
+    return formula.replace(/(\$?)([A-Z]{1,3})(\$?)(\d{1,7})/g, (m, cabs, col, rabs, row) => {
+      let c = XLSX.utils.decode_col(col);
+      let r = parseInt(row, 10) - 1;
+      if (!cabs) c += dc;
+      if (!rabs) r += dr;
+      if (c < 0 || r < 0) return '#REF!';
+      return cabs + XLSX.utils.encode_col(c) + rabs + (r + 1);
+    });
   }
 
   function newBook() {
@@ -871,7 +954,7 @@
         if (cell.f != null) {
           out.f = cell.f;
           out.t = cell.t === 's' ? 's' : 'n';
-          if (cell.v != null) out.v = cell.v;
+          if (cell.v != null && cell.v !== '') out.v = cell.v;
         } else if (cell.v instanceof Date) {
           out.t = 'd'; out.v = cell.v; if (cell.z) out.z = cell.z;
         } else if (typeof cell.v === 'number') {

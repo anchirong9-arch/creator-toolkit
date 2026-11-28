@@ -529,3 +529,10 @@ body.dirty .chip-dot{display:block;}
   .stage-cap{margin-top:8px;}
 }
 @media (min-width:821px){ .thumbs{overflow:hidden;} }
+
+/* 저장 버튼 + 형식 메뉴 */
+.save-wrap{display:flex;align-items:stretch;}
+.save-wrap #btnSave{border-radius:10px 0 0 10px;}
+.save-wrap .btn.caret{
+  border-radius:0 10px 10px 0;padding:0 7px;border-left:1px solid rgba(11,14,20,.28);font-size:11px;min-width:24px;
+}
